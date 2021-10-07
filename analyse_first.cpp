@@ -2,7 +2,7 @@
 // Created by Strawberry on 2021/10/6.
 //
 
-//第一遍分析 读入源程序 一行一行的读入 然后存入缓冲区 然后分析这一行
+//第一遍分析 读入源程序 一行一行的读入 然后存入缓冲区
 
 #include "Utils.h"
 void analyse_first(){
