@@ -306,12 +306,12 @@ void analyse_second() {
             //然后进行整行单行注释检查 检查该语句是否以 // 开头 如果是则不用处理 节约时间
         else if (is_comment1(line, content)) {
             comments[line] = content;
-            cout << "line " << line << " is comment1: " << content << endl;
+            cout << "line " << line << " is single line comment: " << content << endl;
         }
             //然后检查是否是多行注释 即以 /* 开头 如果是则也加入注释中 不做处理 节约时间
         else if (is_comment2(line, content)) {
 
-            cout << "from line " << line << " to line " << end_comment2 << " is comment2" << endl;
+            cout << "from line " << line << " to line " << end_comment2 << " is multiple line comment" << endl;
             for(int i = line;i <= end_comment2;i++){
                 comments_mul[i] = buffers[i];
             }
