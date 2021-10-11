@@ -1,20 +1,11 @@
-#include<stdio.h>
-//comment1
-int main()
-{
-
-    @833
-    2019211349@
-    int lol;
-    lol = 1 / 2;
-    int bbbb;
-    printf("hello world");//hello!
-    /*
-        comment2
-        comment3
-
-              */
-    printf("QAQ QAQ");/*aaa*/
-    printf("lol is %d", lol);
-    return 0;
-}
+//int main(){
+//    int a = 1.3;
+//    int b=-1;
+//    printf("haha");
+//    return 0;
+//}
+int ybb+=1;
+a++;
+b+=-1;
+-1;
+int ybb = -1;

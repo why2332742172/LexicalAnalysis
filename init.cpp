@@ -61,6 +61,8 @@ void operations_init(){
     operations.emplace_back("||");
     operations.emplace_back("|");
     operations.emplace_back("!");
+    operations.emplace_back("+=");
+    operations.emplace_back("-=");
 }
 
 void demarcations_init(){

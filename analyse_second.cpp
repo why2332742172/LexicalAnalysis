@@ -168,12 +168,14 @@ void second_separate(){
     bool multiple_comments = false;
 
     for(string str : split_strings){
-        bool flag = false;
-        bool forward_flag = false;
-        int forward_index = 0;
-        bool after_flag = false;
-        int after_index = 0;
-        int begin_index = 0;
+        bool flag = false; //该字符串中是否包含了运算符or分界符 如果是则flag = true
+
+        bool forward_flag = false;//是否找到前一个 "
+        int forward_index = 0; //前一个 " 的位置
+        bool after_flag = false; //是否找到后一个 "
+        int after_index = 0; //后一个 " 的位置
+
+        int begin_index = 0; //是分隔的起始位置
         int end_index = 0;
         //cout << "str: " << str << endl;
         if(multiple_comments){
@@ -239,19 +241,81 @@ void second_separate(){
 
                     if(!forward_flag && ch_str != "\""){
                         //如果当前的字符是分界符or运算符 则说明与前面的不同 需要分隔开
+
+                        //如果是运算符 则还得往后读一个看
+                        // 1 后面是数字 例如 int b = -1 中的 -1
+                        // 2 后面还是运算符 例如 a++ 中的 ++
                         if(find(operations.begin(),operations.end(),ch_str) != operations.end()){
                             flag = true;
+                            bool flag_two_op = false;
 
-                            end_index = i;
-                            if(end_index != begin_index && end_index != 0){
-                                if(find(operations.begin(),operations.end(),string(1,str[i-1])) == operations.end()){
-                                    string split_string = str.substr(begin_index , (end_index - begin_index));
-                                    split_strings_second.push_back(split_string);
-                                    //cout << "split_string1: " << split_string << endl;
+                            //更新1
+                            //往后读一个 如果还是运算符 那么就判断这两个字符连在一起的是否是一个运算符 如果是则把他加入 split_strings_second
+                            string next_str = string (1,str[i+1]);
+                            cout << "next_str: " << next_str << endl;
+                            if(find(operations.begin(),operations.end(),next_str) != operations.end()){
+                                string two_str = ch_str + next_str;
+                                cout << "two_str: " << two_str << endl;
+                                if(find(operations.begin(),operations.end(),two_str) != operations.end()){
+                                    //如果两个连接起来的确实是运算符 则把他加入
+                                    flag_two_op = true;
+                                    end_index = i;
+                                    i++;
+                                    if(end_index != begin_index && end_index != 0){
+                                        string split_string = str.substr(begin_index , (end_index - begin_index));
+                                        split_strings_second.push_back(split_string);
+                                    }
+                                    begin_index = end_index + 2;
+                                    split_strings_second.push_back(two_str);
+
+                                }else{
+                                    //连起来不是 则是两个单独的运算符
+                                    end_index = i;
+                                    if(end_index != begin_index && end_index != 0){
+                                        //if(find(operations.begin(),operations.end(),string(1,str[i-1])) == operations.end()){
+                                        string split_string = str.substr(begin_index , (end_index - begin_index));
+                                        split_strings_second.push_back(split_string);
+                                        //cout << "split_string1: " << split_string << endl;
+                                        //}
+                                    }
+                                    begin_index = end_index + 1;
+                                    split_strings_second.push_back(ch_str);
                                 }
                             }
-                            begin_index = end_index + 1;
-                            split_strings_second.push_back(ch_str);
+                            //更新1 end
+
+                            //更新2
+                            //再往后读一个 如果是数字! 则判断当前的这个符号是否是 + 或者 - 如果是 则它也是个常数 作为一个整体加入
+                            ///TODO 更改常数部分的判断 加入 +1 -1 这种类型的判断
+                            else if((ch_str == "+" || ch_str == "-") && isdigit(str[i+1])){
+                                string two_str = ch_str + next_str;
+                                cout << "two_str2: " << two_str << endl;
+                                end_index = i;
+                                i++;
+                                if(end_index != begin_index && end_index != 0){
+                                    string split_string = str.substr(begin_index , 2);
+                                    split_strings_second.push_back(split_string);
+                                }
+                                begin_index = end_index + 2;
+                                split_strings_second.push_back(two_str);
+
+                            }
+                            //更新2 end
+                            else{
+                                end_index = i;
+                                if(end_index != begin_index && end_index != 0){
+                                    //if(find(operations.begin(),operations.end(),string(1,str[i-1])) == operations.end()){
+                                        string split_string = str.substr(begin_index , (end_index - begin_index));
+                                        split_strings_second.push_back(split_string);
+                                        //cout << "split_string1: " << split_string << endl;
+                                    //}
+                                }
+                                begin_index = end_index + 1;
+                                split_strings_second.push_back(ch_str);
+                            }
+
+
+
                         }
 
                         if(find(demarcations.begin(),demarcations.end(),ch_str) != demarcations.end()){
@@ -339,7 +403,6 @@ void analyse_second() {
                 if ( nums != 0 && nums % 2 == 0) {
 
                     //如果双引号数量为偶数 则说明该行包含字符串 则直接加入到split_strings 下一步再进行分析
-                    //去掉换行符
 
                     split_strings.push_back(content);
 
@@ -366,27 +429,27 @@ void analyse_second() {
         }
         it++;
     }
-//    cout << "---------------------" << endl;
-//    for (string strssss: split_strings) {
-//        cout << strssss << endl;
-//        //judgeType(strssss);
-//    }
-//    cout << "---------------------" << endl;
+    cout << "---------------------" << endl;
+    for (string strssss: split_strings) {
+        cout << strssss << endl;
+        //judgeType(strssss);
+    }
+    cout << "---------------------" << endl;
 
     //经过大致分了一次之后 再分第二次 此次是判断前一个字符和后一个字符的种类是否相同 如果不同则说明他们是两个东西
     second_separate();
-//    cout << "````````````````````````````===============````````````````````````````" << endl;
+    cout << "````````````````````````````===============````````````````````````````" << endl;
+    for (string strssss2: split_strings_second) {
+        cout << strssss2 << endl;
+        //judgeType(strssss2);
+    }
+    cout << "````````````````````````````===============````````````````````````````" << endl;
+//    cout << "===============" << endl;
 //    for (string strssss2: split_strings_second) {
 //        cout << strssss2 << endl;
 //        //judgeType(strssss2);
 //    }
-//    cout << "````````````````````````````===============````````````````````````````" << endl;
-    cout << "===============" << endl;
-    for (string strssss2: split_strings_second) {
-        //cout << strssss2 << endl;
-        judgeType(strssss2);
-    }
-    cout << "================" << endl;
+//    cout << "================" << endl;
 
 
 }
