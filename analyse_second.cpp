@@ -89,7 +89,7 @@ bool is_val(string str) {
         return true;
     }
     for (char ch: str) {
-        if (isdigit(ch) == 0) {
+        if (ch != '-' && ch != '+' && isdigit(ch) == 0 && ch != '.') {
             //有一个字符不是数字 则不是常数字
             return false;
         }
@@ -252,10 +252,10 @@ void second_separate(){
                             //更新1
                             //往后读一个 如果还是运算符 那么就判断这两个字符连在一起的是否是一个运算符 如果是则把他加入 split_strings_second
                             string next_str = string (1,str[i+1]);
-                            cout << "next_str: " << next_str << endl;
+                            //cout << "next_str: " << next_str << endl;
                             if(find(operations.begin(),operations.end(),next_str) != operations.end()){
                                 string two_str = ch_str + next_str;
-                                cout << "two_str: " << two_str << endl;
+                                //cout << "two_str: " << two_str << endl;
                                 if(find(operations.begin(),operations.end(),two_str) != operations.end()){
                                     //如果两个连接起来的确实是运算符 则把他加入
                                     flag_two_op = true;
@@ -286,17 +286,28 @@ void second_separate(){
 
                             //更新2
                             //再往后读一个 如果是数字! 则判断当前的这个符号是否是 + 或者 - 如果是 则它也是个常数 作为一个整体加入
-                            ///TODO 更改常数部分的判断 加入 +1 -1 这种类型的判断
+
                             else if((ch_str == "+" || ch_str == "-") && isdigit(str[i+1])){
+                                //循环往后一直到非数字为止
+                                int digitLength = 1;
                                 string two_str = ch_str + next_str;
-                                cout << "two_str2: " << two_str << endl;
+                                for(int ii = i + 2;ii < str.length();ii++){
+                                    if(isdigit(str[ii]) || str[ii] == '.'){
+                                        digitLength++;
+                                        two_str += str[ii];
+                                    }else{
+                                        break;
+                                    }
+                                }
+
+                                //cout << "two_str2: " << two_str << endl;
                                 end_index = i;
                                 i++;
                                 if(end_index != begin_index && end_index != 0){
-                                    string split_string = str.substr(begin_index , 2);
+                                    string split_string = str.substr(begin_index , digitLength);
                                     split_strings_second.push_back(split_string);
                                 }
-                                begin_index = end_index + 2;
+                                begin_index = end_index + digitLength + 1;
                                 split_strings_second.push_back(two_str);
 
                             }
@@ -329,7 +340,6 @@ void second_separate(){
                                     string split_string = str.substr(begin_index , (end_index - begin_index));
                                     split_strings_second.push_back(split_string);
                                     //cout << "split_string2: " << split_string << endl;
-
                                 }
                             }
 
@@ -429,27 +439,27 @@ void analyse_second() {
         }
         it++;
     }
-    cout << "---------------------" << endl;
-    for (string strssss: split_strings) {
-        cout << strssss << endl;
-        //judgeType(strssss);
-    }
-    cout << "---------------------" << endl;
+
+//    cout << "---------------------" << endl;
+//    for (string strssss: split_strings) {
+//        cout << strssss << endl;
+//    }
+//    cout << "---------------------" << endl;
 
     //经过大致分了一次之后 再分第二次 此次是判断前一个字符和后一个字符的种类是否相同 如果不同则说明他们是两个东西
     second_separate();
-    cout << "````````````````````````````===============````````````````````````````" << endl;
-    for (string strssss2: split_strings_second) {
-        cout << strssss2 << endl;
-        //judgeType(strssss2);
-    }
-    cout << "````````````````````````````===============````````````````````````````" << endl;
-//    cout << "===============" << endl;
+//    cout << "````````````````````````````===============````````````````````````````" << endl;
 //    for (string strssss2: split_strings_second) {
 //        cout << strssss2 << endl;
 //        //judgeType(strssss2);
 //    }
-//    cout << "================" << endl;
+//    cout << "````````````````````````````===============````````````````````````````" << endl;
+    cout << "===============" << endl;
+    for (string strssss2: split_strings_second) {
+        //cout << strssss2 << endl;
+        judgeType(strssss2);
+    }
+    cout << "================" << endl;
 
 
 }

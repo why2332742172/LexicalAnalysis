@@ -1,11 +1,16 @@
-//int main(){
-//    int a = 1.3;
-//    int b=-1;
-//    printf("haha");
-//    return 0;
-//}
-int ybb+=1;
-a++;
-b+=-1;
--1;
-int ybb = -1;
+#include <stdio.h>
+
+int main(int a){
+    double x = -1.234;
+    x++;
+    x+=-1.2345;
+    printf("x = %d",x);
+    fuc(x);
+    return 0;
+}
+
+void fuc(double a){
+    printf("x = %d",x);
+}
+
+//问题 参数无法解释类型
