@@ -401,7 +401,6 @@ void second_separate(){
         }
 
     }
-
 }
 
 void analyse_second() {
