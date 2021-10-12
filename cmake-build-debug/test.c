@@ -1,16 +1,15 @@
 #include <stdio.h>
 
 int main(int a){
+    88a
     double x = -1.234;
     x++;
     x+=-1.2345;
-    printf("x = %d",x);
-    fuc(x);
+    printf("x = 12345");
+    fuc(x); //hahaha
     return 0;
 }
 
 void fuc(double a){
-    printf("x = %d",x);
+    printf("x = 12345");
 }
-
-//问题 参数无法解释类型

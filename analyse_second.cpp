@@ -115,6 +115,10 @@ bool is_right_var(string str) {
 
 Type judgeType(string toBeJudgeStr) {
 
+    //先去除头部的空格
+    toBeJudgeStr.erase(0, toBeJudgeStr.find_first_not_of(' '));
+    toBeJudgeStr.erase(0, toBeJudgeStr.find_first_not_of('\t'));
+
     if (toBeJudgeStr != " " && toBeJudgeStr != "\n" && toBeJudgeStr != "\t") {
         //首先判断是否是 关键字
         if (find(keywords.begin(), keywords.end(), toBeJudgeStr) != keywords.end()) {
@@ -143,6 +147,11 @@ Type judgeType(string toBeJudgeStr) {
             cout << "<VAL ~ " << toBeJudgeStr << " >" << endl;
             val_num++;
             return val;
+        }
+        //判断是否是注释 如果是则不管他
+        //判断当前这一行去掉空格后前两个是否是 // or /*
+        else if((toBeJudgeStr[0] == '/' && toBeJudgeStr[1] == '/') || (toBeJudgeStr[0] == '/' && toBeJudgeStr[1] == '*')){
+
         }
             //如果都不是 则是标识符(自变量)了 首先判断其是否符合构词规则(只能以字母or下划线_开头 不能以数字开头 且有字母、数字、下划线组成)
         else if (!is_right_var(toBeJudgeStr)) {
@@ -180,7 +189,7 @@ void second_separate(){
         //cout << "str: " << str << endl;
         if(multiple_comments){
             //当前处于多行注释阶段
-            cout << "str:" << str << endl;
+            //cout << "str:" << str << endl;
             comments_in_line_mul.push_back(str);
             if(str.find_first_of("*/") < str.length()){
                 //找到了结束符号
@@ -188,9 +197,10 @@ void second_separate(){
             }
         }else{
             for (int i = 0; i < str.length(); i++) {
-
+                //cout << "str:" << str << endl;
                 char ch = str[i];
                 string ch_str = string(1,ch);
+                //cout << "ch_str:" << ch_str << endl;
                 if(ch_str != "\n" && ch_str != "\t" && ch_str != " "){
 //                    if(ch == '/' && str[i+1] == '*'){
 //                        cout << "-->" << str[str.length() - 3] << endl;
@@ -286,8 +296,8 @@ void second_separate(){
 
                             //更新2
                             //再往后读一个 如果是数字! 则判断当前的这个符号是否是 + 或者 - 如果是 则它也是个常数 作为一个整体加入
-
-                            else if((ch_str == "+" || ch_str == "-") && isdigit(str[i+1])){
+                            //如果前一个也是数字 后一个也是数字 则其不是符号而是运算符!不处理
+                            else if((ch_str == "+" || ch_str == "-") && isdigit(str[i+1]) && !isdigit(str[i-1])){
                                 //循环往后一直到非数字为止
                                 int digitLength = 1;
                                 string two_str = ch_str + next_str;
@@ -296,19 +306,31 @@ void second_separate(){
                                         digitLength++;
                                         two_str += str[ii];
                                     }else{
+                                        //cout << "two_str2: " << two_str << endl;
+                                        i = ii;
+                                        end_index = i;
+                                        //cout << "ii = " << ii << endl;
+
+//                                        if (end_index != begin_index && end_index != 0) {
+//                                            string split_string = str.substr(begin_index, digitLength);
+//                                            split_strings_second.push_back(split_string);
+//                                        }
+                                        begin_index = end_index;
+                                        split_strings_second.push_back(two_str);
+                                        i--;
                                         break;
                                     }
                                 }
 
                                 //cout << "two_str2: " << two_str << endl;
-                                end_index = i;
-                                i++;
-                                if(end_index != begin_index && end_index != 0){
-                                    string split_string = str.substr(begin_index , digitLength);
-                                    split_strings_second.push_back(split_string);
-                                }
-                                begin_index = end_index + digitLength + 1;
-                                split_strings_second.push_back(two_str);
+//                                end_index = i;
+//                                i++;
+//                                if(end_index != begin_index && end_index != 0){
+//                                    string split_string = str.substr(begin_index , digitLength);
+//                                    split_strings_second.push_back(split_string);
+//                                }
+//                                begin_index = end_index + digitLength + 1;
+//                                split_strings_second.push_back(two_str);
 
                             }
                             //更新2 end
@@ -327,11 +349,10 @@ void second_separate(){
 
 
 
-                        }
-
-                        if(find(demarcations.begin(),demarcations.end(),ch_str) != demarcations.end()){
+                        }else if(find(demarcations.begin(),demarcations.end(),ch_str) != demarcations.end()){
                             flag = true;
                             //cout << begin_index << ":" << end_index << endl;
+                            //cout << "i = " << i << endl;
                             end_index = i;
                             //end_index - begin_index > 1
                             if(end_index != begin_index && end_index != 0){
@@ -346,13 +367,35 @@ void second_separate(){
                             begin_index = end_index + 1;
                             split_strings_second.push_back(ch_str);
                         }
+                        //更新3
+                        else if(flag && ch_str != " " && ch_str != "\n" && ch_str != "\t"){
+                            //flag为true 说明这一行存在分界符or操作符 且现在这个字符不是操作符or分界符 即情况类似于fuc(int a) 这种情况
+                            //则一直往下读 直到读完这一行or读到其他的分界符or操作符为止 然后更新i
+                            string temp_s;
+                            bool f22 = false;
+                            for(int jj = i;jj < str.length();jj++){
+                                if(isalpha(str[jj]) || isdigit(str[jj])){
+                                    temp_s += str[jj];
+                                }else{
+                                    i = jj - 1;
+                                    f22 = true;
+                                    split_strings_second.push_back(temp_s);
+                                    break;
+                                }
+                            }
+                            if(!f22){
+                                i = str.length();
+                                split_strings_second.push_back(temp_s);
+                            }
+                        }
+                        //更新3end
                     }
 
 
                 }
             }
             if(!flag){
-                //cout << "!flag" << endl;
+                //cout << "!flag" << str << endl;
                 split_strings_second.push_back(str);
             }
         }
@@ -426,10 +469,17 @@ void analyse_second() {
                             //找到了空格or换行符or行尾结束符 说明前面的从 forward_index 到 after_index 前一个都是一个独立的字符串
                             after_index = i;
                             int sub_length = after_index - forward_index;
+                            //cout << "forward_index = " << forward_index << endl;
+                            //cout << "after_index = " << after_index << endl;
                             string split_str = content.substr(forward_index, sub_length);
+                            //cout << "split_str : " << split_str << endl;
+                            if(split_str != " " && split_str != "\n" && split_str != "\t" && after_index > forward_index){
+                                split_strings.push_back(split_str);
+                                forward_index = after_index + 1;
+                            }else{
+                                forward_index = i;
+                            }
 
-                            split_strings.push_back(split_str);
-                            forward_index = after_index + 1;
                         }
                     }
                 }
@@ -454,10 +504,13 @@ void analyse_second() {
 //        //judgeType(strssss2);
 //    }
 //    cout << "````````````````````````````===============````````````````````````````" << endl;
-    cout << "===============" << endl;
+    cout << "=======RESULT========" << endl;
     for (string strssss2: split_strings_second) {
         //cout << strssss2 << endl;
-        judgeType(strssss2);
+        if(strssss2 != " " && strssss2 != "\n" && strssss2 != "\t"){
+            judgeType(strssss2);
+        }
+
     }
     cout << "================" << endl;
 
